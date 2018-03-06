@@ -9,14 +9,25 @@ const view = {
     question: document.getElementById('question'),
     result: document.getElementById('result'),
     info: document.getElementById('info'),
+    start: document.getElementById('start'),
     render (target, content, attributes) {
         Object.keys(attributes || []).forEach(key => target.setAttribute(key, attributes[ key ]));
         target.innerHTML = content;
-    }
+    },
+    show (element) {
+        element.style.display = 'block';
+    },
+    hide (element) {
+        element.style.display = 'none';
+    },
 };
+
+view.start.addEventListener('click', () => game.start(quiz), false);
 
 const game = {
     start (quiz) {
+        view.hide(view.start);
+
         this.questions = [ ...quiz ];
         this.score = 0;
         // main game loop
@@ -35,7 +46,7 @@ const game = {
     },
     check (response) {
         const answer = this.question.realName.toLowerCase();
-        if (response === answer) {
+        if (response.toLowerCase() === answer) {
             view.render(view.result, 'Correct!', { 'class': 'correct' });
             alert('Correct!');
             this.score++;
@@ -47,7 +58,6 @@ const game = {
     },
     gameOver () {
         view.render(view.info, `Game Over, you scored ${this.score} point${this.score !== 1 ? 's' : ''}`);
+        view.show(view.start);
     }
 };
-
-game.start(quiz);
