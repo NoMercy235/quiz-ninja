@@ -54,7 +54,7 @@ const view = {
         this.hide(this.response);
         this.show(this.start);
     },
-    buttons(array){
+    buttons (array) {
         return array.map(value => `<button>${value}</button>`).join('');
     },
 };
@@ -110,6 +110,13 @@ const game = {
         if (game.secondsRemaining <= 0) {
             game.gameOver();
         }
+    },
+    hiScore () {
+        const hi = localStorage.getItem('highScore') || 0;
+        if (this.score > hi || hi === 0) {
+            localStorage.setItem('highScore', this.score);
+        }
+        return localStorage.getItem('highScore');
     },
 };
 
