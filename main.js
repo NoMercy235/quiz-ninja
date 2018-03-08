@@ -11,6 +11,7 @@ const view = {
     info: document.getElementById('info'),
     start: document.getElementById('start'),
     response: document.querySelector('#response'),
+    timer: document.querySelector('#timer strong'),
     render (target, content, attributes) {
         Object.keys(attributes || []).forEach(key => target.setAttribute(key, attributes[ key ]));
         target.innerHTML = content;
@@ -35,7 +36,7 @@ const view = {
         this.response.answer.value = '';
         this.response.answer.focus();
     },
-    teardown(){
+    teardown () {
         this.hide(this.question);
         this.hide(this.response);
         this.show(this.start);
@@ -46,6 +47,10 @@ view.start.addEventListener('click', () => game.start(quiz), false);
 
 const game = {
     start (quiz) {
+        this.secondsRemaining = 20;
+        this.timer = setInterval(this.countdown, 1000);
+        view.render(view.timer, game.secondsRemaining);
+
         view.hide(view.start);
         this.score = 0;
         this.questions = [ ...quiz ];
@@ -75,6 +80,7 @@ const game = {
     gameOver () {
         view.render(view.info, `Game Over, you scored ${this.score} point${this.score !== 1 ? 's' : ''}`);
         view.teardown();
+        clearInterval(this.timer);
     },
     ask (name) {
         if (this.questions.length > 0) {
@@ -85,7 +91,14 @@ const game = {
         else {
             this.gameOver();
         }
-    }
+    },
+    countdown () {
+        game.secondsRemaining--;
+        view.render(view.timer, game.secondsRemaining);
+        if (game.secondsRemaining <= 0) {
+            game.gameOver();
+        }
+    },
 };
 
 view.response.addEventListener('submit', (event) => game.check(event), false);
