@@ -2,6 +2,9 @@ const quiz = [
     { name: 'Superman', realName: 'Clark Kent' },
     { name: 'Wonder Woman', realName: 'Diana Prince' },
     { name: 'Batman', realName: 'Bruce Wayne' },
+    { name: 'The Hulk', realName: 'Bruce Banner' },
+    { name: 'Spider-man', realName: 'Peter Parker' },
+    { name: 'Cyclops', realName: 'Scott Summers' },
 ];
 
 function random (a, b = 1) {
@@ -45,17 +48,15 @@ const view = {
         this.render(this.score, game.score);
         this.render(this.result, '');
         this.render(this.info, '');
-        this.resetForm();
-    },
-    resetForm () {
-        this.response.answer.value = '';
-        this.response.answer.focus();
     },
     teardown () {
         this.hide(this.question);
         this.hide(this.response);
         this.show(this.start);
-    }
+    },
+    buttons(array){
+        return array.map(value => `<button>${value}</button>`).join('');
+    },
 };
 
 view.start.addEventListener('click', () => game.start(quiz), false);
@@ -73,17 +74,15 @@ const game = {
         this.ask();
     },
     check (event) {
-        event.preventDefault();
-        const response = view.response.answer.value;
+        const response = event.target.textContent;
         const answer = this.question.realName.toLowerCase();
         if (response.toLowerCase() === answer) {
-            view.render(view.result, 'Correct!', { 'class': 'correct' });
             this.score++;
+            view.render(view.result, 'Correct!', { 'class': 'correct' });
             view.render(view.score, this.score);
         } else {
             view.render(view.result, `Wrong! The correct answer was ${answer}`, { 'class': 'wrong' });
         }
-        view.resetForm();
         this.ask();
     },
     gameOver () {
@@ -92,11 +91,14 @@ const game = {
         clearInterval(this.timer);
     },
     ask (name) {
-        if (this.questions.length > 0) {
+        if (this.questions.length > 2) {
             shuffle(this.questions);
             this.question = this.questions.shift();
+            const options = [ this.questions[ 0 ].realName, this.questions[ 1 ].realName, this.question.realName ];
+            shuffle(options);
             const question = `What is ${this.question.name}'s real name?`;
             view.render(view.question, question);
+            view.render(view.response, view.buttons(options));
         }
         else {
             this.gameOver();
@@ -111,5 +113,4 @@ const game = {
     },
 };
 
-view.response.addEventListener('submit', (event) => game.check(event), false);
-view.hide(view.response);
+view.response.addEventListener('click', (event) => game.check(event), false);
